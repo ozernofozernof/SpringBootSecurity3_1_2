@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменить пользователя</title>
+</head>
+<body>
+<h2>Изменить пользователя</h2>
+<div>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Выйти">
+    </form>
+    <br/>
+    <form th:method="PATCH" th:action="@{/admin/users/{id}/edit(id=${user.id})}" th:object="${user}">
+        <fieldset>
+            <legend>Данные пользователя</legend>
+            <p>
+                <label th:for="name">Имя</label>
+                <input type="text" name="name" th:id="name" th:value="${user.name}">
+            </p>
+            <p>
+                <label th:for="lastName">Фамилия</label>
+                <input type="text" name="lastName" th:id="lastName" th:value="${user.lastName}">
+            </p>
+            <p>
+                <label th:for="age">Возраст</label>
+                <input type="number" name="age" th:id="age" th:value="${user.age}">
+            </p>
+            <p>
+                <label th:for="email">Электронная почта</label>
+                <input type="text" name="email" th:id="email" th:value="${user.email}">
+            </p>
+            <p>
+                <label th:for="password">Пароль</label>
+                <input type="password" name="password" th:id="password">
+            </p>
+            <p>
+                <label for="roles">Роли</label>
+                <select size="3" multiple="multiple" th:field="*{roles}" id="roles">
+                    <option value="ROLE_ADMIN" th:selected="${user.roles.contains('ROLE_ADMIN')}">ADMIN</option>
+                    <option value="ROLE_USER" th:selected="${user.roles.contains('ROLE_USER')}">USER</option>
+                </select>
+            </p>
+        </fieldset>
+        <button style="background: lightgray" type="submit">Изменить данные</button>
+    </form>
+
+    <br/>
+    <form th:action="@{/admin/users}">
+        <button style="background: lightgray" type="submit">Назад к списку пользователей</button>
+    </form>
+</div>
+</body>
+</html>

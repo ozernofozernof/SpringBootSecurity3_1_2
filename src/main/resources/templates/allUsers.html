@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ. Все пользователи</title>
+</head>
+<body>
+<h2>Привет, Админ. Вот, все пользователи:</h2>
+<div>
+    <hr/>
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Возраст</th>
+            <th>Электронная почта</th>
+            <th>Роль</th>
+        </tr>
+
+        <tr th:each="user : ${userSet}">
+            <td th:text="${user.id}">Id</td>
+            <td th:text="${user.name}">Имя</td>
+            <td th:text="${user.lastName}">Фамилия</td>
+            <td th:text="${user.age}">Возраст</td>
+            <td th:text="${user.email}">Электронная почта</td>
+            <td th:text="${#strings.arrayJoin(user.roles, ', ')}">Роль</td>
+
+            <td>
+                <form th:action="@{/admin/users/{id}/edit(id=${user.id})}" method="GET">
+                    <button style="background: mintcream" type="submit">Изменить</button>
+                </form>
+            </td>
+            <td>
+                <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button style="background: moccasin" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <form th:action="@{/admin/users/add}">
+        <button style="background: lightgray" type="submit">Добавить нового пользователя</button>
+    </form>
+    <br>
+    <form th:action="@{/logout}" method="post">
+        <input style="background: lightgray" type="submit" value="Выйти">
+    </form>
+</div>
+</body>
+</html>

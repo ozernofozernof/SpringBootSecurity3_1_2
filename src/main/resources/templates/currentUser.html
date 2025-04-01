@@ -2,45 +2,55 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Найденный пользователь</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User information</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<div>
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Выйти">
-    </form>
-    <hr/>
-    <table border="2">
-        <tr>
-            <th>Id</th>
-            <th>Имя</th>
-            <th>Фамилия</th>
-            <th>Возраст</th>
-            <th>Электронная почта</th>
-            <th>Роль</th>
-        </tr>
-        <tr>
-            <td th:text="${user.id}">Id</td>
-            <td th:text="${user.name}">Имя</td>
-            <td th:text="${user.lastName}">Фамилия</td>
-            <td th:text="${user.age}">Возраст</td>
-            <td th:text="${user.email}">Почтовый ящик</td>
-            <td th:text="${#strings.arrayJoin(user.roles, ', ')}">Роль</td>
-        </tr>
-    </table>
-    <br>
-    <form th:action="@{/admin/users/{id}/edit(id=${user.id})}" th:object="${user}">
-        <button style="background: mintcream" type="submit">Изменить</button>
-    </form>
-    <br/>
-    <form th:method="DELETE" th:action="@{/admin/users/{id}/delete(id=${user.id})}">
-        <input type="hidden" name="_method" value="DELETE">
-        <button style="background: moccasin" type="submit">Удалить</button>
-    </form>
-    <br/>
-    <form th:action="@{/admin}">
-        <button type="submit">Назад к списку пользователей</button>
-    </form>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand" th:text="${#authentication.name} + ' with roles: ' + ${#authentication.authorities}"></span>
+        <div class="d-flex">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light">Выйти</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container mt-4">
+    <h2>User information-page</h2>
+    <h4 class="mb-3">About user</h4>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.lastName}"></td>
+                        <td th:text="${user.age}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${#strings.arrayJoin(user.roles, ', ')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -2,51 +2,202 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Админ. Все пользователи</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .btn-sm {
+            margin: 0 2px;
+        }
+    </style>
 </head>
 <body>
-<h2>Привет, Админ. Вот, все пользователи:</h2>
-<div>
-    <hr/>
-    <table>
-        <tr>
-            <th>Id</th>
-            <th>Имя</th>
-            <th>Фамилия</th>
-            <th>Возраст</th>
-            <th>Электронная почта</th>
-            <th>Роль</th>
-        </tr>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand" th:text="${#authentication.name} + ' with roles: ' + ${#authentication.authorities}"></span>
+        <div class="d-flex">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light">Выйти</button>
+            </form>
+        </div>
+    </div>
+</nav>
 
-        <tr th:each="user : ${userSet}">
-            <td th:text="${user.id}">Id</td>
-            <td th:text="${user.name}">Имя</td>
-            <td th:text="${user.lastName}">Фамилия</td>
-            <td th:text="${user.age}">Возраст</td>
-            <td th:text="${user.email}">Электронная почта</td>
-            <td th:text="${#strings.arrayJoin(user.roles, ', ')}">Роль</td>
+<div class="container mt-4">
+    <h2>Admin panel</h2>
 
-            <td>
-                <form th:action="@{/admin/users/{id}/edit(id=${user.id})}" method="GET">
-                    <button style="background: mintcream" type="submit">Изменить</button>
-                </form>
-            </td>
-            <td>
-                <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="POST">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button style="background: moccasin" type="submit">Удалить</button>
-                </form>
-            </td>
-        </tr>
-    </table>
-    <br>
-    <form th:action="@{/admin/users/add}">
-        <button style="background: lightgray" type="submit">Добавить нового пользователя</button>
-    </form>
-    <br>
-    <form th:action="@{/logout}" method="post">
-        <input style="background: lightgray" type="submit" value="Выйти">
-    </form>
+    <a th:href="@{/admin/users/add}" class="btn btn-primary mb-3">Add New User</a>
+
+    <!-- Таблица пользователей -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${userSet}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.age}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${#strings.listJoin(user.roles, ', ')}"></td>
+                <td>
+                    <button class="btn btn-warning btn-sm edit-btn"
+                            th:data-id="${user.id}"
+                            th:data-name="${user.name}"
+                            th:data-lastname="${user.lastName}"
+                            th:data-age="${user.age}"
+                            th:data-email="${user.email}"
+                            th:data-roles="${#strings.listJoin(user.roles, ',')}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editUserModal">
+                        Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-btn"
+                            th:data-id="${user.id}"
+                            th:data-name="${user.name}"
+                            th:data-email="${user.email}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно редактирования -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" method="POST" class="card p-4 shadow">
+                        <input type="hidden" name="_method" value="PATCH">
+                        <input type="hidden" id="editUserId" name="id">
+
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">First name</label>
+                            <input type="text" class="form-control" name="name" id="editName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editLastName" class="form-label">Last name</label>
+                            <input type="text" class="form-control" name="lastName" id="editLastName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editAge" class="form-label">Age</label>
+                            <input type="number" class="form-control" name="age" id="editAge" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" id="editEmail" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editPassword" class="form-label">Password (leave blank to keep current)</label>
+                            <input type="password" class="form-control" name="password" id="editPassword">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editRoles" class="form-label">Roles</label>
+                            <select class="form-select" multiple name="roles" id="editRoles" required>
+                                <option value="ROLE_ADMIN">ADMIN</option>
+                                <option value="ROLE_USER">USER</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete user <span id="deleteUserName" class="fw-bold"></span> (<span id="deleteUserEmail"></span>)?</p>
+                    <p class="text-danger">This action cannot be undone!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик клика по кнопке Edit
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Заполняем форму данными пользователя
+                document.getElementById('editUserId').value = this.getAttribute('data-id');
+                document.getElementById('editName').value = this.getAttribute('data-name');
+                document.getElementById('editLastName').value = this.getAttribute('data-lastname');
+                document.getElementById('editAge').value = this.getAttribute('data-age');
+                document.getElementById('editEmail').value = this.getAttribute('data-email');
+
+                // Обрабатываем роли
+                const roles = this.getAttribute('data-roles').split(',');
+                const roleSelect = document.getElementById('editRoles');
+
+                Array.from(roleSelect.options).forEach(option => {
+                    option.selected = roles.includes(option.value);
+                });
+
+                // Устанавливаем action формы
+                document.getElementById('editForm').action = `/admin/users/${this.getAttribute('data-id')}/edit`;
+            });
+        });
+
+        // Обработчик клика по кнопке Delete
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.getAttribute('data-id');
+                const userName = this.getAttribute('data-name');
+                const userEmail = this.getAttribute('data-email');
+
+                // Заполняем модальное окно данными пользователя
+                document.getElementById('deleteUserName').textContent = userName;
+                document.getElementById('deleteUserEmail').textContent = userEmail;
+
+                // Устанавливаем action формы удаления
+                document.getElementById('deleteForm').action = `/admin/users/${userId}/delete`;
+            });
+        });
+    });
+</script>
 </body>
 </html>
